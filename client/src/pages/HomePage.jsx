@@ -5,7 +5,9 @@ export default function HomePage({ state, onCreateSession, onJoinSession }) {
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const hasName = name.trim().length > 0;
-  const canJoin = hasName && roomCode.trim().length > 0;
+  const cleanRoomCode = roomCode.trim().toUpperCase();
+  const canCreate = hasName && !state.isBusy;
+  const canJoin = hasName && cleanRoomCode.length === 4 && !state.isBusy;
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -14,11 +16,11 @@ export default function HomePage({ state, onCreateSession, onJoinSession }) {
       return;
     }
 
-    onJoinSession(roomCode, name);
+    onJoinSession(cleanRoomCode, name);
   }
 
   function handleCreateSession() {
-    if (!hasName) {
+    if (!canCreate) {
       return;
     }
 
@@ -73,10 +75,10 @@ export default function HomePage({ state, onCreateSession, onJoinSession }) {
               <button
                 type="button"
                 onClick={handleCreateSession}
-                disabled={!hasName}
+                disabled={!canCreate}
                 className="h-12 w-full rounded-md bg-cyan-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-200 focus:ring-offset-2 focus:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Create Session
+                {state.isBusy ? "Please wait..." : "Create Session"}
               </button>
 
               <div className="my-5 flex items-center gap-3 text-xs uppercase text-zinc-500">
@@ -92,8 +94,10 @@ export default function HomePage({ state, onCreateSession, onJoinSession }) {
                 <input
                   id="roomCode"
                   value={roomCode}
-                  onChange={(event) => setRoomCode(event.target.value.toUpperCase())}
-                  maxLength={8}
+                  onChange={(event) =>
+                    setRoomCode(event.target.value.replace(/[^a-z0-9]/gi, "").toUpperCase())
+                  }
+                  maxLength={4}
                   placeholder="X7K2"
                   className="h-12 w-full rounded-md border border-zinc-700 bg-zinc-950 px-4 text-center text-xl font-semibold uppercase tracking-[0.25em] text-white outline-none transition placeholder:text-zinc-700 focus:border-cyan-300"
                 />
@@ -102,8 +106,11 @@ export default function HomePage({ state, onCreateSession, onJoinSession }) {
                   disabled={!canJoin}
                   className="h-12 w-full rounded-md border border-zinc-700 px-4 text-sm font-semibold text-zinc-100 transition hover:border-cyan-300 hover:text-cyan-100 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Join Session
+                  {state.isBusy ? "Joining..." : "Join Session"}
                 </button>
+                <p className="text-xs text-zinc-500">
+                  Enter the exact 4-character room code shown on the host device.
+                </p>
               </form>
 
               {state.error ? (

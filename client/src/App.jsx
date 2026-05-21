@@ -5,6 +5,7 @@ import EditorPage from "./pages/EditorPage.jsx";
 
 const INITIAL_STATUS = socket.connected ? "connected" : "disconnected";
 const TYPING_STOP_DELAY = 1200;
+const REQUEST_TIMEOUT = 8000;
 
 export default function App() {
   const [view, setView] = useState("home");
@@ -16,6 +17,7 @@ export default function App() {
   const [typingUsers, setTypingUsers] = useState([]);
   const [connectionStatus, setConnectionStatus] = useState(INITIAL_STATUS);
   const [error, setError] = useState("");
+  const [isBusy, setIsBusy] = useState(false);
   const latestRoomCode = useRef("");
   const currentUserRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -74,8 +76,22 @@ export default function App() {
 
   const createSession = useCallback((name) => {
     setError("");
+    setIsBusy(true);
 
-    socket.emit("create-room", { name }, (response) => {
+    if (!socket.connected) {
+      setIsBusy(false);
+      setError("Socket is disconnected. Refresh the page and try again.");
+      return;
+    }
+
+    socket.timeout(REQUEST_TIMEOUT).emit("create-room", { name }, (requestError, response) => {
+      setIsBusy(false);
+
+      if (requestError) {
+        setError("Server did not respond. Wait a few seconds and try again.");
+        return;
+      }
+
       if (!response?.ok) {
         setError(response?.error || "Could not create a room.");
         return;
@@ -94,22 +110,40 @@ export default function App() {
 
   const joinSession = useCallback((requestedRoomCode, name) => {
     setError("");
+    setIsBusy(true);
 
-    socket.emit("join-room", { roomCode: requestedRoomCode, name }, (response) => {
-      if (!response?.ok) {
-        setError(response?.error || "Could not join that room.");
-        return;
+    if (!socket.connected) {
+      setIsBusy(false);
+      setError("Socket is disconnected. Refresh the page and try again.");
+      return;
+    }
+
+    socket.timeout(REQUEST_TIMEOUT).emit(
+      "join-room",
+      { roomCode: requestedRoomCode, name },
+      (requestError, response) => {
+        setIsBusy(false);
+
+        if (requestError) {
+          setError("Server did not respond. Check the room code and try again.");
+          return;
+        }
+
+        if (!response?.ok) {
+          setError(response?.error || "Could not join that room.");
+          return;
+        }
+
+        latestRoomCode.current = response.roomCode;
+        currentUserRef.current = response.currentUser;
+        setRoomCode(response.roomCode);
+        setNote(response.note);
+        setCurrentUser(response.currentUser);
+        setUsers(response.users || []);
+        setUsersCount(response.usersCount);
+        setView("editor");
       }
-
-      latestRoomCode.current = response.roomCode;
-      currentUserRef.current = response.currentUser;
-      setRoomCode(response.roomCode);
-      setNote(response.note);
-      setCurrentUser(response.currentUser);
-      setUsers(response.users || []);
-      setUsersCount(response.usersCount);
-      setView("editor");
-    });
+    );
   }, []);
 
   const updateNote = useCallback(
@@ -154,9 +188,10 @@ export default function App() {
       typingUsers,
       usersCount,
       connectionStatus,
-      error
+      error,
+      isBusy
     }),
-    [roomCode, note, users, currentUser, typingUsers, usersCount, connectionStatus, error]
+    [roomCode, note, users, currentUser, typingUsers, usersCount, connectionStatus, error, isBusy]
   );
 
   if (view === "editor") {

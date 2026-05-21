@@ -3,4 +3,4 @@ client/node_modules/
 client/*.log
 server/node_modules/
 server/*.log
-
+linkpad/

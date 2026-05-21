@@ -58,9 +58,11 @@ Storage:
 ## Folder Structure
 
 ```text
-linkpad/
-  client/
-  server/
+client/
+server/
+README.md
+package.json
+render.yaml
 ```
 
 ## Local Setup
@@ -68,7 +70,6 @@ linkpad/
 Install dependencies:
 
 ```bash
-cd linkpad
 npm run install:all
 ```
 
@@ -147,14 +148,12 @@ You can run the frontend dev server separately while developing:
 Terminal 1:
 
 ```bash
-cd linkpad
 npm run dev:server
 ```
 
 Terminal 2:
 
 ```bash
-cd linkpad
 npm run dev:client
 ```
 
@@ -178,11 +177,7 @@ Use Render or another Node hosting provider instead.
 2. Go to Render.
 3. Create a new **Web Service**.
 4. Connect your GitHub repository.
-5. Set the root directory to:
-
-```text
-linkpad
-```
+5. Leave the root directory blank if this repository directly contains `client`, `server`, and `package.json`.
 
 6. Use this build command:
 

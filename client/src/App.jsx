@@ -20,11 +20,33 @@ export default function App() {
   const [isBusy, setIsBusy] = useState(false);
   const latestRoomCode = useRef("");
   const currentUserRef = useRef(null);
+  const displayNameRef = useRef("");
   const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     function handleConnect() {
       setConnectionStatus("connected");
+
+      if (!latestRoomCode.current || !displayNameRef.current) {
+        return;
+      }
+
+      socket.timeout(REQUEST_TIMEOUT).emit(
+        "join-room",
+        { roomCode: latestRoomCode.current, name: displayNameRef.current },
+        (requestError, response) => {
+          if (requestError || !response?.ok) {
+            setError("Reconnected, but could not rejoin the room. Create a new room if needed.");
+            return;
+          }
+
+          currentUserRef.current = response.currentUser;
+          setCurrentUser(response.currentUser);
+          setNote(response.note);
+          setUsers(response.users || []);
+          setUsersCount(response.usersCount);
+        }
+      );
     }
 
     function handleDisconnect() {
@@ -77,6 +99,7 @@ export default function App() {
   const createSession = useCallback((name) => {
     setError("");
     setIsBusy(true);
+    displayNameRef.current = name;
 
     if (!socket.connected) {
       setIsBusy(false);
@@ -111,6 +134,7 @@ export default function App() {
   const joinSession = useCallback((requestedRoomCode, name) => {
     setError("");
     setIsBusy(true);
+    displayNameRef.current = name;
 
     if (!socket.connected) {
       setIsBusy(false);

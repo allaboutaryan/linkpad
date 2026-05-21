@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "*";
 const ROOM_CODE_LENGTH = 4;
 const ROOM_CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const EMPTY_ROOM_TTL_MS = 1000 * 60 * 60;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDistPath = path.resolve(__dirname, "../../client/dist");
 const USER_COLORS = [
@@ -62,7 +63,8 @@ io.on("connection", (socket) => {
     rooms.set(roomCode, {
       note: "",
       users: new Map(),
-      typingUsers: new Set()
+      typingUsers: new Set(),
+      emptyRoomTimer: null
     });
 
     joinRoom(socket, roomCode);
@@ -158,6 +160,7 @@ function joinRoom(socket, roomCode) {
 
   socket.join(roomCode);
   socket.data.roomCode = roomCode;
+  clearEmptyRoomTimer(room);
   room.users.set(socket.id, {
     ...socket.data.user,
     color: pickRoomColor(room)
@@ -178,7 +181,7 @@ function leaveCurrentRoom(socket) {
     room.typingUsers.delete(socket.id);
 
     if (room.users.size === 0) {
-      rooms.delete(roomCode);
+      scheduleEmptyRoomCleanup(roomCode, room);
     } else {
       emitRoomUsers(roomCode);
       emitTypingUsers(roomCode);
@@ -195,6 +198,27 @@ function emitRoomUsers(roomCode) {
     users: getRoomUsers(roomCode),
     usersCount: getUsersCount(roomCode)
   });
+}
+
+function scheduleEmptyRoomCleanup(roomCode, room) {
+  clearEmptyRoomTimer(room);
+
+  room.emptyRoomTimer = setTimeout(() => {
+    const latestRoom = rooms.get(roomCode);
+
+    if (latestRoom && latestRoom.users.size === 0) {
+      rooms.delete(roomCode);
+    }
+  }, EMPTY_ROOM_TTL_MS);
+}
+
+function clearEmptyRoomTimer(room) {
+  if (!room.emptyRoomTimer) {
+    return;
+  }
+
+  clearTimeout(room.emptyRoomTimer);
+  room.emptyRoomTimer = null;
 }
 
 function getUsersCount(roomCode) {

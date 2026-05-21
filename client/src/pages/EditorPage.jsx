@@ -12,6 +12,13 @@ export default function EditorPage({ state, onNoteChange, onLeaveRoom }) {
     window.setTimeout(() => setCopied(false), 1400);
   }
 
+  async function copyInviteLink() {
+    const inviteUrl = `${window.location.origin}?room=${state.roomCode}`;
+    await navigator.clipboard.writeText(inviteUrl);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
+  }
+
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-50">
       <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-4 sm:px-6">
@@ -59,10 +66,10 @@ export default function EditorPage({ state, onNoteChange, onLeaveRoom }) {
             </div>
             <button
               type="button"
-              onClick={copyRoomCode}
+              onClick={copyInviteLink}
               className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
             >
-              {copied ? "Copied" : "Copy Code"}
+              {copied ? "Copied" : "Copy Invite Link"}
             </button>
           </div>
           <TypingIndicator users={state.typingUsers} />

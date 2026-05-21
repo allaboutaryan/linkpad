@@ -3,7 +3,10 @@ import StatusPill from "../components/StatusPill.jsx";
 
 export default function HomePage({ state, onCreateSession, onJoinSession }) {
   const [name, setName] = useState("");
-  const [roomCode, setRoomCode] = useState("");
+  const [roomCode, setRoomCode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return (params.get("room") || "").replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 4);
+  });
   const hasName = name.trim().length > 0;
   const cleanRoomCode = roomCode.trim().toUpperCase();
   const canCreate = hasName && !state.isBusy;
@@ -108,9 +111,6 @@ export default function HomePage({ state, onCreateSession, onJoinSession }) {
                 >
                   {state.isBusy ? "Joining..." : "Join Session"}
                 </button>
-                <p className="text-xs text-zinc-500">
-                  Enter the exact 4-character room code shown on the host device.
-                </p>
               </form>
 
               {state.error ? (

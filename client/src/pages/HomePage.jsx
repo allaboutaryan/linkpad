@@ -7,7 +7,7 @@ export default function HomePage({ state, onCreateSession, onJoinSession }) {
   const hasName = name.trim().length > 0;
   const cleanRoomCode = roomCode.trim().toUpperCase();
   const canCreate = hasName && !state.isBusy;
-  const canJoin = hasName && cleanRoomCode.length === 4 && !state.isBusy;
+  const canJoin = hasName && cleanRoomCode.length > 0 && !state.isBusy;
 
   function handleSubmit(event) {
     event.preventDefault();

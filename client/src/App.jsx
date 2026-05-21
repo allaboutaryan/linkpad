@@ -133,6 +133,13 @@ export default function App() {
 
   const joinSession = useCallback((requestedRoomCode, name) => {
     setError("");
+    const cleanRoomCode = requestedRoomCode.trim().toUpperCase();
+
+    if (cleanRoomCode.length !== 4) {
+      setError("Room code must be exactly 4 characters.");
+      return;
+    }
+
     setIsBusy(true);
     displayNameRef.current = name;
 
@@ -144,7 +151,7 @@ export default function App() {
 
     socket.timeout(REQUEST_TIMEOUT).emit(
       "join-room",
-      { roomCode: requestedRoomCode, name },
+      { roomCode: cleanRoomCode, name },
       (requestError, response) => {
         setIsBusy(false);
 

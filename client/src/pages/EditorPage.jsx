@@ -50,6 +50,21 @@ export default function EditorPage({ state, onNoteChange, onLeaveRoom }) {
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col py-4">
+          <div className="mb-4 flex flex-col gap-3 rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase text-cyan-200">Room Code</p>
+              <p className="mt-1 text-3xl font-semibold tracking-[0.25em] text-white">
+                {state.roomCode}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={copyRoomCode}
+              className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
+            >
+              {copied ? "Copied" : "Copy Code"}
+            </button>
+          </div>
           <TypingIndicator users={state.typingUsers} />
           <textarea
             value={state.note}

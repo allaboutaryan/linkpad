@@ -134,6 +134,129 @@ http://192.168.0.100:4000?room=ABCD
 
 The QR code in the room points to this LAN invite link.
 
+## How To Use The Windows Host App
+
+This is the easiest offline/same-WiFi flow.
+
+### Host Laptop
+
+1. Install LinkPad using the Windows installer.
+2. Open the LinkPad desktop app.
+3. Enter your name.
+4. Click **Create Session**.
+5. Keep the LinkPad app open.
+6. Share the QR code or phone invite link shown in the room.
+
+### Phone Or Other Laptop
+
+1. Connect to the same WiFi or mobile hotspot as the host laptop.
+2. Scan the QR code shown on the host laptop.
+3. Or open the invite link shown on the host laptop.
+4. Enter your name.
+5. Click **Join Session**.
+
+Phone users do not install anything. They only need a browser.
+
+### Important
+
+This local file path only works on the machine where the file exists:
+
+```text
+file:///C:/Users/2arya/Desktop/linknote/release/LinkPad%20Setup%200.1.0.exe
+```
+
+Do not send that `file:///` path to other people. Their device cannot access your `C:` drive.
+
+To share the installer with someone else, send/upload the actual file:
+
+```text
+release/LinkPad Setup 0.1.0.exe
+```
+
+Good sharing options:
+
+- GitHub Releases
+- Google Drive
+- WhatsApp/Telegram file share
+- USB drive
+- LAN file share
+
+Because this is an unsigned local build, Windows may show a warning. For a polished public release, sign the installer with a code-signing certificate.
+
+## Render Mode Vs Offline LAN Mode
+
+LinkPad now has two useful modes.
+
+### Render Mode
+
+Use this when users are far away or have internet:
+
+```text
+https://linkpad.onrender.com
+```
+
+How it works:
+
+```text
+Everyone opens the Render link
+Render runs the Node + Socket.IO server online
+Users create/join rooms through the internet
+```
+
+Pros:
+
+- Works across cities
+- No install needed
+- Easy public demo
+
+Cons:
+
+- Needs internet
+- Free Render can sleep and take time to wake up
+
+### Offline LAN Mode
+
+Use this when users are in the same room/class/workshop and may not have internet:
+
+```text
+Host laptop runs LinkPad desktop app
+Phones/laptops join through local WiFi link or QR
+```
+
+How it works:
+
+```text
+The desktop app starts a local server on the host laptop
+The app shows the host laptop's local network URL
+Other devices on the same WiFi open that URL
+Socket.IO syncs notes over the local network
+```
+
+Example local invite:
+
+```text
+http://192.168.0.100:4000?room=ABCD
+```
+
+Pros:
+
+- No internet needed
+- Very low latency
+- Great for classrooms, meetings, workshops, hotspots
+
+Cons:
+
+- Host laptop must keep LinkPad app open
+- Everyone must be on the same WiFi/hotspot
+- Far-away users cannot join this local link
+
+Simple explanation:
+
+```text
+Render mode = online server
+Offline LAN mode = one laptop becomes the local server
+```
+
 For auto-restart while developing the backend:
 
 ```bash

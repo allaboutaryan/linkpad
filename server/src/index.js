@@ -47,6 +47,16 @@ app.get("/health", (_req, res) => {
   });
 });
 
+app.get("/api/network", (_req, res) => {
+  const addresses = getLocalIPv4Addresses();
+
+  res.json({
+    port: Number(PORT),
+    localUrl: `http://localhost:${PORT}`,
+    lanUrls: addresses.map((address) => `http://${address}:${PORT}`)
+  });
+});
+
 app.get("*", (_req, res) => {
   res.sendFile(path.join(clientDistPath, "index.html"));
 });

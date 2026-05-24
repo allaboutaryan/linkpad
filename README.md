@@ -102,6 +102,38 @@ Open:
 http://localhost:4000
 ```
 
+## Easy Offline LAN Mode
+
+For non-technical users, the target flow is:
+
+```text
+Host opens LinkPad desktop app
+Host creates room
+App shows room code + phone invite QR/link
+Phones/laptops on same WiFi open the invite link
+Everyone collaborates without internet
+```
+
+Development command for the desktop host app:
+
+```bash
+npm run desktop
+```
+
+Build a Windows installer:
+
+```bash
+npm run desktop:dist
+```
+
+Phone users do not install the desktop app. They connect to the same WiFi/hotspot as the host laptop and open the invite link shown in the host app, for example:
+
+```text
+http://192.168.0.100:4000?room=ABCD
+```
+
+The QR code in the room points to this LAN invite link.
+
 For auto-restart while developing the backend:
 
 ```bash

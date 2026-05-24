@@ -34,6 +34,15 @@ For local use, LinkPad can run over the same WiFi or mobile hotspot. For remote 
 - No external API dependency
 - Works locally on same WiFi/hotspot
 - Can also be deployed as a public Node app
+- PWA app shell caching for better offline reload behavior
+
+## Architecture Guide
+
+For the full local-network, offline-first, remote, and hybrid architecture plan, see:
+
+```text
+docs/OFFLINE_LAN_ARCHITECTURE.md
+```
 
 ## Tech Stack
 
